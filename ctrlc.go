@@ -4,17 +4,18 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"syscall"
 )
 
 // Run runs a given function with a context that is canceled if one of the given signals is received.
 // If no signals are listed here,
-// the default is to use [os.Interrupt].
+// the default is to use [os.Interrupt], [syscall.SIGQUIT], and [syscall.SIGTERM].
 //
 // If the context is canceled because a signal is caught,
 // then [context.Cause] will return a [SignalError].
 func Run(ctx context.Context, f func(context.Context) error, sigs ...os.Signal) error {
 	if len(sigs) == 0 {
-		sigs = []os.Signal{os.Interrupt}
+		sigs = []os.Signal{os.Interrupt, syscall.SIGQUIT, syscall.SIGTERM}
 	}
 
 	ctx, cancel := context.WithCancelCause(ctx)
